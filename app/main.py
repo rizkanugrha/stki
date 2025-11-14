@@ -1,26 +1,15 @@
-# ==============================================================================
-# == KODE FULL PERBAIKAN UNTUK: UTS/app/main.py
-# ==============================================================================
+
 
 import streamlit as st
 import os
 import sys
 import pandas as pd
-import nltk  # 1. Import NLTK
-
-# --- PERBAIKAN DEPLOYMENT STREAMLIT (Soal LookupError) ---
-# Menambahkan 3 baris ini untuk mengunduh data NLTK
-# Ini akan berjalan saat server Streamlit membangun (build) aplikasi Anda
+import nltk  
 print("Memulai download data NLTK (stopwords & punkt)...")
 nltk.download('stopwords')
 nltk.download('punkt')
 print("Download NLTK selesai.")
 # --------------------------------------------------------
-
-
-# --- PERBAIKAN PATH IMPORT (Soal 'src' not found) ---
-# Tambahkan path root (UTS) ke sys.path agar bisa import 'src'
-# Ini penting karena app/main.py ada di dalam subfolder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # --------------------------------------------------------
 
@@ -29,8 +18,6 @@ from src.vsm_ir import VectorSpaceModel
 from src.boolean_ir import BooleanRetrieval
 from src.preprocess import preprocess
 
-# --- PERBAIKAN PATH DATA (Soal 'data/raw' not found) ---
-# Path harus relatif dari root proyek (UTS), bukan dari file app/main.py
 RAW_DATA_DIR = 'data/raw'
 PROCESSED_DATA_DIR = 'data/processed'
 # --------------------------------------------------------
@@ -41,13 +28,10 @@ def load_models():
     Memuat model VSM & Boolean.
     Akan otomatis menjalankan preprocessing jika data/processed kosong.
     """
-    # Pastikan data yang diproses ada
-    # [PERBAIKAN] Menggunakan path yang sudah benar
+    
     if not os.path.exists(PROCESSED_DATA_DIR) or not os.listdir(PROCESSED_DATA_DIR):
         st.warning(f"Data yang diproses ('{PROCESSED_DATA_DIR}') tidak ditemukan. Menjalankan preprocessing...")
         
-        # Pastikan data mentah ada
-        # [PERBAIKAN] Menggunakan path yang sudah benar
         if not os.path.exists(RAW_DATA_DIR):
             st.error(f"FATAL: Folder {RAW_DATA_DIR} tidak ditemukan. Tidak bisa memuat data.")
             return None, None
