@@ -92,6 +92,7 @@ def load_models():
 
 # --- Tampilan Utama Aplikasi Streamlit ---
 st.title("Mesin Pencari Berita COVID-19 (UTS STKI)")
+st.write("Nama: Rizka Nugraha NIM: A11.2022.14119") # Menambahkan nama dan NIM
 st.write("Project ini mengimplementasikan Boolean Retrieval dan Vector Space Model.")
 
 try:
