@@ -113,7 +113,7 @@ Cara ini digunakan untuk menjalankan aplikasi Streamlit di komputer Anda.
 
 1.  **Clone repositori:**
     ```bash
-    git clone [https://github.com/](https://github.com/)[rizkanugrha]/[stki].git
+    git clone https://github.com/rizkanugrha/stki.git
     cd stki
     git checkout UTS
 
