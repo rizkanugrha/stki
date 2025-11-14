@@ -178,7 +178,7 @@ try:
             
             for query, relevant_docs in gold_standard_vsm.items():
                 
-                # --- PERBAIKAN DI SINI ---
+                # --- PERBAIKAN DI SINI (Memperbaiki error 'string indices') ---
                 
                 # 1. Model Default
                 res_default = vsm_model_default.search(query, k=map_k)
