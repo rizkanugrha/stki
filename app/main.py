@@ -22,7 +22,7 @@ print("Download NLTK selesai.")
 # --- PERBAIKAN PATH IMPORT (Soal 'src' not found) ---
 # Tambahkan path root (UTS) ke sys.path agar bisa import 'src'
 # Ini penting karena app/main.py ada di dalam subfolder
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 # --------------------------------------------------------
 
 # Impor modul Anda SEKARANG (setelah NLTK siap)
