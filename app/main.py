@@ -14,6 +14,7 @@ import nltk  # 1. Import NLTK
 print("Memulai download data NLTK (stopwords & punkt)...")
 nltk.download('stopwords')
 nltk.download('punkt')
+nltk.download('punkt_tab')
 print("Download NLTK selesai.")
 # --------------------------------------------------------
 
@@ -30,8 +31,8 @@ from src.boolean_ir import BooleanRetrieval
 from src.preprocess import preprocess
 
 # Path ke data (relatif dari root proyek 'UTS')
-RAW_DATA_DIR = 'data/raw'
-PROCESSED_DATA_DIR = 'data/processed'
+RAW_DATA_DIR = '../data/raw'
+PROCESSED_DATA_DIR = '../data/processed'
 
 @st.cache_resource
 def load_models():
@@ -41,7 +42,7 @@ def load_models():
     """
     # Pastikan data yang diproses ada
     if not os.path.exists(PROCESSED_DATA_DIR) or not os.listdir(PROCESSED_DATA_DIR):
-        st.warning("Data yang diproses ('data/processed') tidak ditemukan. Menjalankan preprocessing...")
+        st.warning("Data yang diproses ('../data/processed') tidak ditemukan. Menjalankan preprocessing...")
         
         # Pastikan data mentah ada
         if not os.path.exists(RAW_DATA_DIR):
@@ -131,5 +132,5 @@ try:
 
 except Exception as e:
     st.error(f"Terjadi kesalahan fatal saat memuat model: {e}")
-    st.error("Pastikan file data 'data/raw' ada dan 'src' dapat diakses.")
+    st.error("Pastikan file data '../data/raw' ada dan 'src' dapat diakses.")
     st.code(f"Detail error: {e}", language="text")
