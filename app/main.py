@@ -1,6 +1,6 @@
 # ==============================================================================
 # == KODE FULL PERBAIKAN UNTUK: UTS/app/main.py
-# == (Versi ini MENAMBAHKAN TAB EVALUASI SOAL 03 & 05 + MEMPERBAIKI BUGS)
+# == (Versi ini memperbaiki error 'string indices must be integers')
 # ==============================================================================
 
 import streamlit as st
@@ -10,7 +10,6 @@ import pandas as pd
 import nltk  # 1. Import NLTK
 
 # --- KONFIGURASI HALAMAN ---
-# st.set_page_config() harus menjadi perintah Streamlit PERTAMA yang dijalankan.
 st.set_page_config(
     page_title="Mesin Pencari STKI",
     page_icon="🔎",
@@ -20,7 +19,6 @@ st.set_page_config(
 
 
 # --- PERBAIKAN DEPLOYMENT STREAMLIT (Soal LookupError) ---
-# Mengunduh data NLTK yang diperlukan
 print("Memulai download data NLTK (stopwords & punkt)...")
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -36,13 +34,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.vsm_ir import VectorSpaceModel
 from src.boolean_ir import BooleanRetrieval
 from src.preprocess import preprocess
-# --- TAMBAHAN: Impor fungsi evaluasi ---
 from src.eval import (
     calculate_precision_recall_f1, 
     mean_average_precision, 
     precision_at_k
 )
-# -----------------------------------------
 
 # --- PERBAIKAN PATH DATA (Soal 'data/raw' not found) ---
 RAW_DATA_DIR = 'data/raw'
@@ -57,21 +53,18 @@ def load_models():
     """
     # Pastikan data yang diproses ada
     if not os.path.exists(PROCESSED_DATA_DIR) or not os.listdir(PROCESSED_DATA_DIR):
-        # PERBAIKAN: Hapus st.warning, ganti dengan print
         print(f"Data yang diproses ('{PROCESSED_DATA_DIR}') tidak ditemukan. Menjalankan preprocessing...")
         
         if not os.path.exists(RAW_DATA_DIR):
-            # PERBAIKAN: Hapus st.error
             print(f"FATAL: Folder {RAW_DATA_DIR} tidak ditemukan. Tidak bisa memuat data.")
-            return None, None, None # PERUBAHAN: Kembalikan 3 None
+            return None, None, None
             
         os.makedirs(PROCESSED_DATA_DIR, exist_ok=True)
         raw_files = [f for f in os.listdir(RAW_DATA_DIR) if f.endswith('.txt')]
         
         if not raw_files:
-            # PERBAIKAN: Hapus st.error
             print(f"Tidak ada file .txt di {RAW_DATA_DIR}.")
-            return None, None, None # PERUBAHAN: Kembalikan 3 None
+            return None, None, None
             
         # Lakukan preprocessing
         for doc_id in raw_files:
@@ -80,10 +73,9 @@ def load_models():
             processed_content = preprocess(raw_content)
             with open(os.path.join(PROCESSED_DATA_DIR, doc_id), 'w', encoding='utf-8') as f_out:
                 f_out.write(processed_content)
-        # PERBAIKAN: Hapus st.success
         print("Preprocessing selesai. Model siap dimuat.")
 
-    # --- PERUBAHAN: Muat 3 Model untuk perbandingan ---
+    # Muat model
     print("Memuat model VSM (Default TF-IDF)...")
     vsm_model_default = VectorSpaceModel(RAW_DATA_DIR, sublinear_tf=False) 
     
@@ -100,16 +92,17 @@ def load_models():
 
 # --- Tampilan Utama Aplikasi Streamlit ---
 st.title("Mesin Pencari Berita COVID-19 (UTS STKI)")
+st.write("Nama: Rizka Nugraha NIM: A11.2022.14119") # Menambahkan nama dan NIM
 st.write("Project ini mengimplementasikan Boolean Retrieval dan Vector Space Model.")
 
 try:
-    # --- PERUBAHAN: Terima 3 model ---
+    # Coba muat model
     vsm_model_default, vsm_model_sublinear, bool_model = load_models()
 
     # Periksa apakah model berhasil dimuat (di luar fungsi cache)
     if vsm_model_default and vsm_model_sublinear and bool_model:
         
-        # --- PERUBAHAN: Buat Tabs UI ---
+        # Buat Tabs UI
         tab_search, tab_eval_vsm, tab_eval_bool = st.tabs([
             "🔎 Pencarian (VSM & Boolean)", 
             "📊 Evaluasi VSM (Soal 05)", 
@@ -117,12 +110,14 @@ try:
         ])
         
         # ==========================================================
-        # TAB 1: PENCARIAN (Kode Anda)
+        # TAB 1: PENCARIAN
         # ==========================================================
         with tab_search:
-            # --- Bagian Vector Space Model (VSM) - [Soal 04 & 05] ---
-            st.header("Pencarian Peringkat (Vector Space Model)")
-            st.info("Pencarian demo ini menggunakan model **VSM Sublinear**.")
+            st.header("Coba Mesin Pencari")
+            
+            # --- Bagian Vector Space Model (VSM) ---
+            st.subheader("Pencarian Peringkat (Vector Space Model)")
+            st.info("Menggunakan model VSM dengan **Sublinear TF-IDF** (Skema terbaik).")
             vsm_query = st.text_input("Masukkan query VSM (misal: 'varian delta jakarta'):", key="vsm_query")
             k_value = st.slider("Jumlah hasil (Top-K):", min_value=1, max_value=5, value=3)
             
@@ -137,16 +132,13 @@ try:
                         for res in results:
                             st.markdown(f"**Dokumen:** `{res['doc_id']}` | **Skor:** `{res['score']:.4f}`")
                             st.info(f"**Snippet:** {res['snippet']}")
-                            with st.expander("Lihat Teks Asli"):
-                                doc_index = vsm_model_sublinear.doc_ids.index(res['doc_id'])
-                                st.text(vsm_model_sublinear.raw_documents[doc_index])
                 else:
                     st.error("Silakan masukkan query VSM.")
 
             st.divider()
 
-            # --- Bagian Boolean Retrieval - [Soal 03] ---
-            st.header("Pencarian Boolean")
+            # --- Bagian Boolean Retrieval ---
+            st.subheader("Pencarian Boolean")
             st.info("Gunakan operator AND, OR, NOT. (Contoh: 'vaksin AND delta', 'ppkm OR jakarta')")
             bool_query = st.text_input("Masukkan query Boolean:", key="bool_query")
             
@@ -161,13 +153,11 @@ try:
                     else:
                         for doc_id in results:
                             st.success(f"`{doc_id}`")
-                            with st.expander("Lihat Teks (Sudah Diproses)"):
-                                st.text(bool_model.doc_contents[doc_id])
                 else:
                     st.error("Silakan masukkan query Boolean.")
-
+        
         # ==========================================================
-        # TAB 2: EVALUASI VSM (SOAL 05) - [FITUR BARU]
+        # TAB 2: EVALUASI VSM (SOAL 05)
         # ==========================================================
         with tab_eval_vsm:
             st.header("Perbandingan Skema VSM (Soal 05)")
@@ -189,20 +179,21 @@ try:
             
             for query, relevant_docs in gold_standard_vsm.items():
                 
-                # --- PERBAIKAN BUG 'string indices': Simpan hasil mentah ---
+                # --- PERBAIKAN DI SINI (Memperbaiki error 'string indices') ---
                 
                 # 1. Model Default
                 res_default = vsm_model_default.search(query, k=map_k)
-                retrieved_default_ids = [r['doc_id'] for r in res_default] 
+                retrieved_default_ids = [r['doc_id'] for r in res_default] # Ambil ID-nya untuk P@k
                 p_at_k_default = precision_at_k(retrieved_default_ids, relevant_docs, k=p_k)
-                query_results_default[query] = res_default # Simpan list of dicts untuk MAP
+                query_results_default[query] = res_default # Simpan HASIL MENTAH (list of dicts) untuk MAP
                 
                 # 2. Model Sublinear
                 res_sublinear = vsm_model_sublinear.search(query, k=map_k)
-                retrieved_sublinear_ids = [r['doc_id'] for r in res_sublinear]
+                retrieved_sublinear_ids = [r['doc_id'] for r in res_sublinear] # Ambil ID-nya untuk P@k
                 p_at_k_sublinear = precision_at_k(retrieved_sublinear_ids, relevant_docs, k=p_k)
-                query_results_sublinear[query] = res_sublinear # Simpan list of dicts untuk MAP
-                # --- AKHIR PERBAIKAN BUG ---
+                query_results_sublinear[query] = res_sublinear # Simpan HASIL MENTAH (list of dicts) untuk MAP
+
+                # --- AKHIR PERBAIKAN ---
 
                 eval_data_pak.append({
                     "Query": query,
@@ -211,6 +202,7 @@ try:
                 })
 
             # Hitung MAP
+            # Fungsi mean_average_precision SEKARANG akan menerima data yang benar
             map_default = mean_average_precision(query_results_default, gold_standard_vsm, k=map_k)
             map_sublinear = mean_average_precision(query_results_sublinear, gold_standard_vsm, k=map_k)
 
@@ -229,11 +221,20 @@ try:
                 st.write(f"""
                 - **MAP@{map_k}** (Mean Average Precision) mengukur kualitas perankingan secara keseluruhan.
                 - Pada kasus ini, model **{"Sublinear" if map_sublinear >= map_default else "Default"}** memiliki skor MAP yang sedikit lebih baik.
-                - Sublinear TF (`1 + log(tf)`) berguna untuk menangani frekuensi kata yang sangat tinggi.
+                - Sublinear TF (`1 + log(tf)`) berguna untuk menangani frekuensi kata yang sangat tinggi, sehingga kata yang muncul 1000x tidak dianggap 1000x lebih penting daripada yang muncul 1x.
                 """)
+            with st.expander("Lihat Hasil Retrieval Mentah (untuk Debug)"):
+                # Kita ubah dict menjadi list of string agar JSON-nya rapi
+                debug_results_default = {q: [r['doc_id'] for r in res] for q, res in query_results_default.items()}
+                debug_results_sublinear = {q: [r['doc_id'] for r in res] for q, res in query_results_sublinear.items()}
+                st.json({
+                    "Default TF-IDF (doc_ids)": debug_results_default,
+                    "Sublinear TF-IDF (doc_ids)": debug_results_sublinear,
+                    "Gold Standard": {q: list(d) for q, d in gold_standard_vsm.items()}
+                })
 
         # ==========================================================
-        # TAB 3: EVALUASI BOOLEAN (SOAL 03) - [FITUR BARU]
+        # TAB 3: EVALUASI BOOLEAN (SOAL 03)
         # ==========================================================
         with tab_eval_bool:
             st.header("Evaluasi Model Boolean (Soal 03)")
@@ -267,7 +268,7 @@ try:
             df_eval_bool = pd.DataFrame(eval_results).set_index("Query")
             st.dataframe(df_eval_bool, use_container_width=True)
 
-            with st.expander("Lihat Penjelasan (Explain) Eksekusi Kueri"):
+            with st.expander("Liih Penjelasan (Explain) Eksekusi Kueri"):
                 st.json(explain_logs)
     
     # Jika model gagal dimuat
