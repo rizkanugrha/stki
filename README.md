@@ -5,7 +5,7 @@
 
 Aplikasi ini juga di-deploy menggunakan Streamlit Community Cloud dan dapat diakses secara publik.
 
-**Tautan Aplikasi Streamlit:** `[LINK-KE-APLIKASI-STREAMLIT-ANDA]`
+**Tautan Aplikasi Streamlit:** `https://uts-stki-14119.streamlit.app`
 
 ---
 
