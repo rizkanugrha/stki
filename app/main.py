@@ -1,11 +1,11 @@
 
+
 import streamlit as st
 import os
 import sys
 import pandas as pd
-import nltk  # 1. Import NLTK
-
-# --- KONFIGURASI HALAMAN ---
+import nltk  
+# --- PERUBAHAN DI SINI: KONFIGURASI HALAMAN ---
 # st.set_page_config() harus menjadi perintah Streamlit PERTAMA yang dijalankan.
 st.set_page_config(
     page_title="Mesin Pencari STKI",
@@ -19,8 +19,8 @@ st.set_page_config(
 # Mengunduh data NLTK yang diperlukan
 print("Memulai download data NLTK (stopwords & punkt)...")
 nltk.download('stopwords')
-nltk.download('punkt')
 nltk.download('punkt_tab')
+nltk.download('punkt')
 print("Download NLTK selesai.")
 # --------------------------------------------------------
 
@@ -30,6 +30,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # --------------------------------------------------------
 
 # Impor modul Anda SEKARANG (setelah NLTK siap)
+# --- PERUBAHAN DI SINI: Impor lebih banyak fungsi evaluasi ---
 from src.vsm_ir import VectorSpaceModel
 from src.boolean_ir import BooleanRetrieval
 from src.preprocess import preprocess
@@ -38,8 +39,10 @@ from src.eval import (
     mean_average_precision, 
     precision_at_k
 )
+# --------------------------------------------------------
 
 # --- PERBAIKAN PATH DATA (Soal 'data/raw' not found) ---
+# Path harus relatif dari root proyek (UTS)
 RAW_DATA_DIR = 'data/raw'
 PROCESSED_DATA_DIR = 'data/processed'
 # --------------------------------------------------------
@@ -48,51 +51,42 @@ PROCESSED_DATA_DIR = 'data/processed'
 def load_models():
     """
     Memuat semua model yang diperlukan.
-    Fungsi ini DI-CACHE dan TIDAK BOLEH memanggil elemen UI Streamlit.
+    Sekarang memuat 2 VSM (Default dan Sublinear) untuk perbandingan.
     """
     # Pastikan data yang diproses ada
     if not os.path.exists(PROCESSED_DATA_DIR) or not os.listdir(PROCESSED_DATA_DIR):
-        # DIHAPUS: st.warning(...)
-        print(f"Data yang diproses ('{PROCESSED_DATA_DIR}') tidak ditemukan. Menjalankan preprocessing...")
+        st.warning(f"Data yang diproses ('{PROCESSED_DATA_DIR}') tidak ditemukan. Menjalankan preprocessing...")
         
         if not os.path.exists(RAW_DATA_DIR):
-            # DIHAPUS: st.error(...)
-            print(f"FATAL: Folder {RAW_DATA_DIR} tidak ditemukan. Tidak bisa memuat data.")
+            st.error(f"FATAL: Folder {RAW_DATA_DIR} tidak ditemukan. Tidak bisa memuat data.")
             return None, None, None
             
         os.makedirs(PROCESSED_DATA_DIR, exist_ok=True)
         raw_files = [f for f in os.listdir(RAW_DATA_DIR) if f.endswith('.txt')]
         
         if not raw_files:
-            # DIHAPUS: st.error(...)
-            print(f"Tidak ada file .txt di {RAW_DATA_DIR}.")
+            st.error(f"Tidak ada file .txt di {RAW_DATA_DIR}.")
             return None, None, None
             
-        # Lakukan preprocessing
         for doc_id in raw_files:
             with open(os.path.join(RAW_DATA_DIR, doc_id), 'r', encoding='utf-8') as f_in:
                 raw_content = f_in.read()
             processed_content = preprocess(raw_content)
             with open(os.path.join(PROCESSED_DATA_DIR, doc_id), 'w', encoding='utf-8') as f_out:
                 f_out.write(processed_content)
-        # DIHAPUS: st.success(...)
-        print("Preprocessing selesai. Model siap dimuat.")
+        st.success("Preprocessing selesai. Model siap dimuat.")
 
-    # Muat model
-    # DIHAPUS: st.toast(...)
-    print("Memuat model VSM (Default TF-IDF)...")
+    # --- PERUBAHAN DI SINI: Muat 3 model ---
+    st.toast("Memuat model VSM (Default TF-IDF)...")
     vsm_model_default = VectorSpaceModel(RAW_DATA_DIR, sublinear_tf=False) 
     
-    # DIHAPUS: st.toast(...)
-    print("Memuat model VSM (Sublinear TF-IDF)...")
+    st.toast("Memuat model VSM (Sublinear TF-IDF)...")
     vsm_model_sublinear = VectorSpaceModel(RAW_DATA_DIR, sublinear_tf=True)
     
-    # DIHAPUS: st.toast(...)
-    print("Memuat model Boolean...")
+    st.toast("Memuat model Boolean...")
     bool_model = BooleanRetrieval(PROCESSED_DATA_DIR)
     
-    # DIHAPUS: st.toast(...)
-    print("Semua model berhasil dimuat!")
+    st.toast("Semua model berhasil dimuat!", icon="✅")
     return vsm_model_default, vsm_model_sublinear, bool_model
 # --------------------------------------------------------
 
@@ -102,13 +96,12 @@ st.title("Mesin Pencari Berita COVID-19 (UTS STKI)")
 st.write("Project ini mengimplementasikan Boolean Retrieval dan Vector Space Model.")
 
 try:
-    # Coba muat model
+    # --- PERUBAHAN DI SINI: Terima 3 model ---
     vsm_model_default, vsm_model_sublinear, bool_model = load_models()
 
-    # Periksa apakah model berhasil dimuat (di luar fungsi cache)
     if vsm_model_default and vsm_model_sublinear and bool_model:
         
-        # Buat Tabs UI
+        # --- PERUBAHAN DI SINI: Gunakan Tabs untuk UI ---
         tab_search, tab_eval_vsm, tab_eval_bool = st.tabs([
             "🔎 Pencarian (VSM & Boolean)", 
             "📊 Evaluasi VSM (Soal 05)", 
@@ -163,7 +156,7 @@ try:
                     st.error("Silakan masukkan query Boolean.")
         
         # ==========================================================
-        # TAB 2: EVALUASI VSM (SOAL 05)
+        # TAB 2: EVALUASI VSM (SOAL 05) - [FITUR BARU]
         # ==========================================================
         with tab_eval_vsm:
             st.header("Perbandingan Skema VSM (Soal 05)")
@@ -231,7 +224,7 @@ try:
                 })
 
         # ==========================================================
-        # TAB 3: EVALUASI BOOLEAN (SOAL 03)
+        # TAB 3: EVALUASI BOOLEAN (SOAL 03) - [FITUR BARU]
         # ==========================================================
         with tab_eval_bool:
             st.header("Evaluasi Model Boolean (Soal 03)")
@@ -267,14 +260,8 @@ try:
 
             with st.expander("Lihat Penjelasan (Explain) Eksekusi Kueri"):
                 st.json(explain_logs)
-    
-    # Jika model gagal dimuat
-    else:
-        st.error("Model gagal dimuat. Periksa log Streamlit untuk detailnya.")
-        st.error("Pastikan file data 'data/raw' ada dan 'src' dapat diakses.")
 
 except Exception as e:
-    # Tangkap error umum (seperti import gagal, dll)
-    st.error(f"Terjadi kesalahan fatal saat aplikasi dimulai: {e}")
+    st.error(f"Terjadi kesalahan fatal saat memuat model: {e}")
     st.error("Pastikan file data 'data/raw' ada dan 'src' dapat diakses.")
     st.code(f"Detail error: {e}", language="text")
