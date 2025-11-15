@@ -77,7 +77,7 @@ stki-uts/
 │ ├── raw/ # Berisi 5 dokumen .txt (corpus) 
 │ └── processed/ # (Dibuat otomatis oleh skrip preprocessing) 
 ├── notebooks/ 
-│ └── UTS_STKI_<nim>.ipynb # Notebook Colab untuk pengujian & dev  
+│ └── STKI_UTS_A11.2022.14119_RIZKA_NUGRAHA.ipynb # Notebook Colab untuk pengujian & dev  
 ├── reports/ 
 │ └── (laporan.pdf) # (Placeholder untuk laporan PDF)  
 ├── src/ 
