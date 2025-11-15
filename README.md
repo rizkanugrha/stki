@@ -72,23 +72,24 @@ Struktur repositori ini mengikuti format yang ditentukan dalam soal UTS.
 ```
 stki-uts/ 
 ├── app/ 
-│ └── main.py # Skrip utama aplikasi Streamlit  
+│ └── main.py
 ├── data/ 
-│ ├── raw/ # Berisi 5 dokumen .txt (corpus) 
-│ └── processed/ # (Dibuat otomatis oleh skrip preprocessing) 
+│ ├── raw/
+│ └── processed/  
 ├── notebooks/ 
-│ └── STKI_UTS_A11.2022.14119_RIZKA_NUGRAHA.ipynb # Notebook Colab untuk pengujian & dev  
+│ └── STKI_UTS_A11.2022.14119_RIZKA_NUGRAHA.ipynb  
 ├── reports/ 
-│ └── (laporan.pdf) # (Placeholder untuk laporan PDF)  
+│ ├── ESSAI-UTS-STKI-14119.pdf
+│ └── laporan_stki_rizka.pdf
 ├── src/ 
-│ ├── init.py # Membuat 'src' menjadi Python package 
-│ ├── preprocess.py # Modul Soal 02 (Preprocessing) 
-│ ├── boolean_ir.py # Modul Soal 03 (Boolean Model) 
-│ ├── vsm_ir.py # Modul Soal 04 (VSM) 
-│ ├── search.py # Skrip CLI (Soal 05) 
-│ └── eval.py # Modul evaluasi (P/R/F1, MAP)  
-├── readme.md # File ini 
-└── requirements.txt # Dependensi Python untuk deployment
+│ ├── init.py 
+│ ├── preprocess.py 
+│ ├── boolean_ir.py 
+│ ├── vsm_ir.py 
+│ ├── search.py 
+│ └── eval.py 
+├── readme.md 
+└── requirements.txt 
 ```
 
 ---
