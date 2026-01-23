@@ -1,6 +1,6 @@
 # Tugas Sistem Temu Kembali Informasi (STKI)
 
-Proyek ini untuk pemenuhan Tugas Ganjil 2025/2026.
+Proyek ini untuk pemenuhan Tugas Semester Ganjil 2025/2026.
 
 ---
 
